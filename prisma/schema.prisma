@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum TicketStatus {
+  YENI
+  INCELENIYOR
+  COZULDU
+  REDDEDILDI
+}
+
+enum Priority {
+  DUSUK
+  ORTA
+  YUKSEK
+  ACIL
+}
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  password   String
+  name       String
+  studentNo  String?
+  role       Role     @default(STUDENT)
+  createdAt  DateTime @default(now())
+  tickets    Ticket[]
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  tickets     Ticket[]
+}
+
+model Ticket {
+  id                 String       @id @default(cuid())
+  title              String
+  description        String
+  location           String
+  priority           Priority     @default(ORTA)
+  status             TicketStatus @default(YENI)
+  photoUrl           String?
+  adminResponse      String?
+  satisfactionRating Int?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  resolvedAt         DateTime?
+  userId             String
+  user               User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId         String
+  category           Category     @relation(fields: [categoryId], references: [id])
+}
